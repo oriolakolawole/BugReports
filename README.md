@@ -94,3 +94,47 @@ If an intruder successfully brute-forces credentials, they gain full account acc
 - Introduce account lockouts or timeouts after repeated failures  
 - Apply request and API rate limiting  
 - Enforce OTP or MFA for additional protection  
+
+---
+
+### Vulnerability: Broken Authentication – Password Reset Link Remains Active
+
+**Description:**  
+When a user creates an account on `[REDACTED_URL]` and requests a password reset, a password reset link is sent to their email.  
+If the user changes their password directly from within their account (via the Account Settings page) **without using the reset link**, the previously issued reset link **remains active**.  
+
+As a result, if the user later accesses the old password reset link, they can still reset their password.  
+This behavior poses a security risk because an attacker who intercepts or obtains an old reset link could still take over the account, even after the user has already changed their password.  
+
+**Steps to Reproduce:**  
+1. Sign up for an account on `[REDACTED_URL]`.  
+2. Request a password reset for your account.  
+3. Without using the reset link sent to your email, log in to your account.  
+4. From the Account Settings page (`[REDACTED_URL]/profile`), change your password.  
+5. Return to your email inbox and click the old password reset link received in Step 2.  
+6. Observe that the reset link is still valid and allows password change.  
+
+
+**Expected Result:**  
+- Any previously issued password reset links should be **invalidated immediately** once the user:  
+  - Changes their password from within the account, or  
+  - Successfully resets their password via a reset link.  
+- Attempting to use an expired/invalid reset link should result in an error such as:  
+  *“This password reset link is no longer valid.”*  
+
+**Actual Result:**  
+- The old reset link remains **active and functional**, even after the user has changed their password from the account settings.  
+- This allows reuse of outdated reset links, enabling unauthorized password changes.  
+
+**Impact:**  
+- An attacker who gains access to an old password reset link (via email compromise, leaked logs, or man-in-the-middle attacks) can reset the victim’s password at any time.  
+- This leads to **account takeover**, exposing sensitive data and enabling fraudulent activities.  
+
+
+**Recommendations:**  
+- Immediately **invalidate all active reset tokens** once a password change occurs (either via account settings or another reset flow).  
+- Enforce **single-use password reset links**.  
+- Add an **expiration time** (e.g., 15 minutes) to reset links.  
+- Monitor and log password reset token usage for anomaly detection.  
+
+---
