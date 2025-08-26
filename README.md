@@ -139,7 +139,7 @@ This behavior poses a security risk because an attacker who intercepts or obtain
 
 ---
 
-### [Bug] TRACE HTTP Method Permitted by Web Server
+### Vulnerability: TRACE HTTP Method Permitted by Web Server
 
 **Overview:**  
 The affected web servers were discovered to allow the **TRACE HTTP method**.  
@@ -151,15 +151,11 @@ If successfully exploited, this could allow a remote attacker to gain access to 
 For further details on Cross-Site Tracing, see:  
 🔗 [OWASP: Cross Site Tracing (XST)](https://owasp.org/www-community/attacks/Cross_Site_Tracing)  
 
----
-
-**Bug Stats:**  
 - **Assets Affected:**  
   - `https://gtm.website.com/`  
   - `https://gtm.stage.website.com/`  
 - **Severity:** Medium  
 
----
 
 **Steps to Reproduce:**  
 1. Open a terminal.  
@@ -169,3 +165,29 @@ curl -vX TRACE "https://gtm.stage.website.com/"
 curl -vX TRACE "https://gtm.website.com/"
 ```
 3. Observe that the server responds and reflects the request headers back in the response.
+
+**Expected Result**
+- The server should reject **TRACE** requests.  
+- Response should return an error such as:  
+  - `405 Method Not Allowed`  
+  - `501 Not Implemented`  
+
+**Actual Result**
+- The server **accepts TRACE requests** and reflects back request headers in the response.  
+- This behavior could be chained with XSS to perform **Cross-Site Tracing (XST)** attacks.  
+
+**Impact**
+- Attackers may bypass **HttpOnly** cookie protection.  
+- Sensitive session data can be exposed if combined with XSS.  
+- Expands the overall **attack surface** of the web server.  
+
+**Remediation Procedure**
+- Restrict supported HTTP methods to only those necessary for business operations (commonly: `GET` and `POST`).  
+- Disable the **TRACE** method in the server configuration. For example, in Apache:  
+```apache
+TraceEnable off
+```
+- Ensure proper input validation and sanitization to reduce the risk of injection attacks.
+
+---
+
