@@ -138,3 +138,34 @@ This behavior poses a security risk because an attacker who intercepts or obtain
 - Monitor and log password reset token usage for anomaly detection.  
 
 ---
+
+### [Bug] TRACE HTTP Method Permitted by Web Server
+
+**Overview:**  
+The affected web servers were discovered to allow the **TRACE HTTP method**.  
+This method is intended for debugging and reflects user-supplied input (from the HTTP request header) back into the response header.  
+
+When **Cross-Site Scripting (XSS)** vulnerabilities are present, the TRACE method can be abused to bypass the **HttpOnly cookie attribute**, in an attack known as **Cross-Site Tracing (XST)**.  
+If successfully exploited, this could allow a remote attacker to gain access to sensitive information stored within the HTTP response headers, such as authentication session tokens.  
+
+For further details on Cross-Site Tracing, see:  
+🔗 [OWASP: Cross Site Tracing (XST)](https://owasp.org/www-community/attacks/Cross_Site_Tracing)  
+
+---
+
+**Bug Stats:**  
+- **Assets Affected:**  
+  - `https://gtm.website.com/`  
+  - `https://gtm.stage.website.com/`  
+- **Severity:** Medium  
+
+---
+
+**Steps to Reproduce:**  
+1. Open a terminal.  
+2. Execute the following commands:  
+```bash
+curl -vX TRACE "https://gtm.stage.website.com/"
+curl -vX TRACE "https://gtm.website.com/"
+```
+3. Observe that the server responds and reflects the request headers back in the response.
