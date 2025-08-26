@@ -24,34 +24,6 @@ Each report follows a **structured format**:
 
 ---
 
-### Report Title: [SQL Injection in Login Form]
-
-**Description:**  
-The login form is vulnerable to SQL injection due to unsanitized user input.
-
-**Steps to Reproduce:**  
-1. Go to `/login`  
-2. Enter username: `' OR 1=1 --`  
-3. Enter any password  
-4. Submit  
-
-**Expected Result:**  
-The system should reject invalid input.
-
-**Actual Result:**  
-Login succeeds, granting unauthorized access.
-
-**Impact:**  
-Critical – allows authentication bypass and data exposure.
-
-**Recommendation:**  
-Use parameterized queries (prepared statements) and validate user inputs.
-
-**Reference:**  
-Use parameterized queries (prepared statements) and validate user inputs.
-
----
-
 ### Vulnerability: Security Misconfiguration – No Rate Limiting Protection
 
 **Description:**  
@@ -237,3 +209,91 @@ Additionally, the server’s login responses disclose **whether an email is regi
 - Standardize login error messages to avoid information disclosure. Example:  
   - *“Incorrect email address or password.”*  
 - Monitor login attempts and block suspicious IPs showing brute-force patterns.  
+
+---
+
+### Vulnerability: Broken Authentication & Session Management
+
+**Description:**  
+When a user changes their password from one browser/device, active sessions on other browsers/devices remain valid.  
+Instead of **expiring old sessions**, the application **updates them silently**, allowing continued access without reauthentication.  
+
+This indicates a flaw in **session invalidation** on password change, which falls under **Broken Authentication & Session Management**.  
+
+
+**Steps to Reproduce:**  
+1. Log in from two browsers simultaneously (e.g., Chrome and Firefox).  
+2. In Chrome, navigate to **Account Settings → Change Password**.  
+3. Observe the session in Firefox.  
+4. Firefox session remains active and is silently updated, instead of being expired.  
+
+**Reproduction on multiple systems:**  
+1. Log in from two different computers with the same account.  
+2. Change the password on **Computer A**.  
+3. Check the session on **Computer B**.  
+4. Session on Computer B is still valid, instead of being logged out.  
+
+**Expected Result:**  
+- On password change, **all active sessions** (other than the one performing the change) should be **invalidated immediately**.  
+- The user should be required to log in again with the **new password** on other devices/browsers.  
+
+**Actual Result:**  
+- All existing sessions remain **active** after a password change.  
+- Old sessions are **silently updated** to use the new password without requiring reauthentication.  
+
+**Impact:**  
+- If an attacker has access to a victim’s session (e.g., via stolen cookies or shared access), they will remain logged in even after the victim resets their password.  
+- This defeats the purpose of password changes as a recovery mechanism after compromise.  
+- Leads to a **serious account takeover risk**.  
+
+**Recommendations:**  
+- Invalidate **all active sessions** whenever a password is changed.  
+- Require all users to log in again with the new password.  
+- Maintain proper session management practices:  
+  - Enforce **session token rotation** after password change or privilege escalation.  
+  - Track active sessions per user and terminate them on credential reset.  
+  - Provide users with a **“Log out from all devices”** option.
+ 
+---
+
+### Vulnerability: Information Disclosure – User Enumeration via Login Responses
+
+**Description:**  
+The application’s login interface provides **different error messages** depending on whether the email address is registered or not.  
+
+- **Unregistered email + any password** → Response: *“User was not found”*  
+- **Registered email + wrong password** → Response: *“Incorrect username and password”*  
+
+This discrepancy allows attackers to determine which email addresses are valid accounts.  
+
+**Steps to Reproduce:**  
+1. Navigate to the sign-in page: `[REDACTED_URL]/sign-in`.  
+2. Attempt login with an **unregistered email address**.  
+   - Observe the error message: *“User was not found”*.  
+3. Attempt login with a **registered email** but an incorrect password.  
+   - Observe the error message: *“Incorrect username and password”*.  
+
+**Expected Result:**  
+- The login interface should return a **generic error message** regardless of whether the email exists or not.  
+- Example: *“Incorrect username and password.”*  
+
+**Actual Result:**  
+- The system discloses whether an email is valid by returning distinct error messages.  
+- This enables attackers to enumerate registered users.  
+
+**Impact:**  
+- Attackers can enumerate valid email accounts by submitting login attempts with different email addresses.  
+- Once valid accounts are identified, attackers can perform **brute-force or credential stuffing attacks**.  
+- If successful, attackers gain access to accounts and can:  
+  - Extract sensitive information (credit card details, personal data, etc.).  
+  - Perform fraudulent transactions or malicious activities.  
+  - Reuse stolen credentials on other platforms (credential reuse attack).  
+
+
+**Recommendations:**  
+- Standardize error messages to avoid information leakage.  
+  - Use a **generic error message** for both invalid and valid emails, such as:  
+    *“Incorrect username or password.”*  
+- Implement **rate limiting and CAPTCHA** on login attempts to further reduce brute-force risks.  
+- Monitor login attempts and flag suspicious activity.  
+
