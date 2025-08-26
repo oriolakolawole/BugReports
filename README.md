@@ -1,15 +1,12 @@
-# 🐞 Bug Report Samples
+# Bug Report 
 
-This repository contains Redacted bug reports from real-world findings. All company names, domains, and sensitive details have been anonymized. 
+This repository contains **redacted bug reports** from real-world findings.   
+All company names, domains, and sensitive details have been anonymized.   
 Reports are shared strictly for educational and professional demonstration purposes
 
 ---
 
-## 📂 Repository Structure
-
-- **/security-reports/** → Security-related bugs (e.g., XSS, SQLi, authentication bypass)  
-- **/ui-ux-reports/** → User interface and usability issues  
-- **/functional-reports/** → Logic or workflow bugs  
+## Report Structure
 
 Each report follows a **structured format**:
 1. **Title / Summary**  
@@ -17,15 +14,16 @@ Each report follows a **structured format**:
 3. **Steps to Reproduce**  
 4. **Expected Result**  
 5. **Actual Result**  
-6. **Impact / Risk**  
-7. **Evidence (screenshots, PoC code, etc.)**  
-8. **Recommendation / Fix**  
+6. **Impact**
+7. **Recommendation**
+8. **reference** 
 
 ---
 
-## 📑 Example
+## Reports
 
-```markdown
+---
+
 ### Report Title: [SQL Injection in Login Form]
 
 **Description:**  
@@ -48,3 +46,8 @@ Critical – allows authentication bypass and data exposure.
 
 **Recommendation:**  
 Use parameterized queries (prepared statements) and validate user inputs.
+
+**Reference:**  
+Use parameterized queries (prepared statements) and validate user inputs.
+
+---
