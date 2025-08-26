@@ -1,7 +1,7 @@
 # 🐞 Bug Report Samples
 
-This repository contains **sample bug reports** created to demonstrate proper documentation and reporting of software vulnerabilities and issues.  
-The goal is to showcase professional bug reporting practices useful in **QA testing, penetration testing, bug bounty programs, and security research**.
+This repository contains Redacted bug reports from real-world findings. All company names, domains, and sensitive details have been anonymized. 
+Reports are shared strictly for educational and professional demonstration purposes
 
 ---
 
