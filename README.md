@@ -191,3 +191,49 @@ TraceEnable off
 
 ---
 
+### Vulnerability: Credential Stuffing via Brute Force Attack & Information Disclosure
+
+**Description:**  
+The login interface at:  
+`[REDACTED_URL]/login`  
+does not enforce rate limiting, allowing brute-force and credential stuffing attacks.  
+
+Additionally, the server’s login responses disclose **whether an email is registered or not**, enabling attackers to enumerate valid user accounts.  
+
+**Steps to Reproduce:**  
+1. Open a browser and visit the login page.  
+2. Enter any email as the username and any password as the password.  
+3. Intercept the login request using Burp Suite.  
+4. Send the request to Intruder.  
+5. Add payloads for the email address field and start the attack.  
+6. Observe the following responses:  
+   - If the email is **not registered** → Response: *“You do not have a business account.”*  
+   - If the email **is registered** → Response: *“Your credentials are incorrect.”*  
+
+*Note:* An attacker can obtain a list of emails from breached databases or exposed datasets and use them to brute-force accounts.  
+
+**Expected Result:**  
+- The login interface should:  
+  - Apply **rate limiting** to block brute-force attempts.  
+  - Provide a **generic error message** for both invalid and valid email inputs, such as:  
+    *“Incorrect email address or password.”*  
+
+**Actual Result:**  
+- The system:  
+  - Allows **unlimited login attempts** without lockout or CAPTCHA.  
+  - Discloses whether an email is registered via distinct error messages.  
+
+**Impact:**  
+- Attackers can enumerate valid user accounts through the error message discrepancy.  
+- Attackers can perform credential stuffing/brute-force attacks against known emails.  
+- If successful, attackers gain unauthorized access to user accounts, enabling them to:  
+  - Extract sensitive information (bank details, private messages, credit card data, etc.).  
+  - Perform fraudulent actions or send phishing/spam from compromised accounts.  
+  - Reuse valid credentials on other platforms (credential stuffing).  
+
+**Recommendations:**  
+- Implement CAPTCHA and/or OTP after several failed login attempts.  
+- Enforce **rate limiting** (e.g., max 5–20 attempts per IP/user within a short timeframe).  
+- Standardize login error messages to avoid information disclosure. Example:  
+  - *“Incorrect email address or password.”*  
+- Monitor login attempts and block suspicious IPs showing brute-force patterns.  
