@@ -16,7 +16,6 @@ Each report follows a **structured format**:
 5. **Actual Result**  
 6. **Impact**
 7. **Recommendation**
-8. **reference** 
 
 ---
 
